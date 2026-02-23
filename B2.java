@@ -1,35 +1,50 @@
-class Account{
-    private String username;
-    private String password;
-    private String email;
+abstract class Vehicle {
 
-    public Account(String username , String password , String email){
-        this.username = username;
-        this.password = password;
-        this.email = email;
+    protected String brand;
+
+    public Vehicle(String brand) {
+        this.brand = brand;
     }
 
-    public void changePassword(String newPassword){
-        this.password = newPassword;
-        System.out.println("Doi mat khau thanh cong");
-    }
+    public abstract void move();
 
-    public void displayInfo(){
-        System.out.println("Username : "+username);
-        System.out.println("Email : "+email);
-        System.out.println("Password : ********");
-        System.out.println("---------------");
+    public String getBrand() {
+        return brand;
     }
 }
 
-public class B2 {
-    public static void main(String[] args){
-        Account account1 = new Account("quanganh" , "190303" , "ngoquanganh2003a@gmail.com");
+class Car extends Vehicle {
 
-        account1.displayInfo();
+    public Car(String brand) {
+        super(brand);
+    }
 
-        account1.changePassword("0386878941");
+    @Override
+    public void move() {
+        System.out.println(brand + " - Cách di chuyển: Di chuyển bằng động cơ");
+    }
+}
 
-        account1.displayInfo();
+class Bicycle extends Vehicle {
+
+    public Bicycle(String brand) {
+        super(brand);
+    }
+
+    @Override
+    public void move() {
+        System.out.println(brand + " - Cách di chuyển: Di chuyển bằng sức người");
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Vehicle car = new Car("Toyota");
+        Vehicle bicycle = new Bicycle("Giant");
+
+        car.move();
+        bicycle.move();
     }
 }
