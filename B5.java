@@ -1,28 +1,82 @@
-class Book{
-    // Biến instance (thuộc tính của đối tượng)
-    private String bookId;
-    private String title;
-    private double price;
+abstract class Employee {
 
-    // Constructor (tham số trùng tên thuộc tính)
-    public Book(String bookId , String title , double price){
-        this.bookId = bookId; // biến instance
-        this.title = title;
-        this.price = price;
+    protected String name;
+    protected double baseSalary;
+
+    public Employee(String name, double baseSalary) {
+        this.name = name;
+        this.baseSalary = baseSalary;
     }
 
-    public void displayInfo(){
-        System.out.println("Ma sach :"+bookId);
-        System.out.println("Ten sach :"+title);
-        System.out.println("Gia sach :"+price);
-        System.out.println("--------------------");
+    public String getName() {
+        return name;
+    }
+
+    // Phương thức trừu tượng
+    public abstract double calculateSalary();
+}
+
+interface BonusCalculator {
+    double getBonus();
+}
+
+class OfficeStaff extends Employee {
+
+    public OfficeStaff(String name, double baseSalary) {
+        super(name, baseSalary);
+    }
+
+    @Override
+    public double calculateSalary() {
+        return baseSalary; // Không có thưởng
     }
 }
 
-public class B5 {
-    public static void main(String[] args){
-        Book book1 = new Book("B01" , "Java Fundermental" , 1200000);
+class Manager extends Employee implements BonusCalculator {
 
-        book1.displayInfo();
+    private double kpiBonus;
+
+    public Manager(String name, double baseSalary, double kpiBonus) {
+        super(name, baseSalary);
+        this.kpiBonus = kpiBonus;
+    }
+
+    @Override
+    public double getBonus() {
+        return kpiBonus;
+    }
+
+    @Override
+    public double calculateSalary() {
+        return baseSalary + getBonus();
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Employee staff = new OfficeStaff("Nguyễn Văn A", 8000);
+        Employee manager = new Manager("Trần Văn B", 15000, 5000);
+
+        Employee[] employees = { staff, manager };
+
+        System.out.println("=== BẢNG LƯƠNG NHÂN VIÊN ===");
+
+        for (Employee e : employees) {
+
+            System.out.println("Tên: " + e.getName());
+            System.out.println("Lương cơ bản: " + e.baseSalary);
+
+            if (e instanceof BonusCalculator) {
+                BonusCalculator b = (BonusCalculator) e;
+                System.out.println("Thưởng KPI: " + b.getBonus());
+            } else {
+                System.out.println("Thưởng KPI: Không có");
+            }
+
+            System.out.println("Tổng lương: " + e.calculateSalary());
+            System.out.println("---------------------------");
+        }
     }
 }
