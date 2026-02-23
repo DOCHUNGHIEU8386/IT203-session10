@@ -1,55 +1,67 @@
-class Product{
-    private String productId;
-    private String productName;
-    private double price;
+abstract class Animal {
 
-    public Product(String productId , String productName , double price){
-        this.productId = productId;
-        this.productName = productName;
-        setPrice(price);
+    protected String name;
+
+    public Animal(String name) {
+        this.name = name;
     }
 
-    public String getProductId(){
-        return productId;
-    }
-
-    public String getProductName(){
-        return productName;
-    }
-
-    public double getPrice(){
-        return price;
-    }
-
-    public void setPrice(double price){
-        if(price > 0){
-            this.price = price;
-        }else{
-            System.out.println("Gia san pham phai > 0");
-            System.out.println("---------------------");
-        }
-    }
-
-    public void displayInfo(){
-        System.out.println("Ma san pham :" +productId);
-        System.out.println("Ten san pham :"+productName);
-        System.out.println("Gia san pham :"+price);
-        System.out.println("---------------------");
+    public String getName() {
+        return name;
     }
 }
 
-public class B3 {
-    public static void main(String[] args){
-        Product product1 = new Product("SP01" , "Iphone 17" , 150000000);
+interface Swimmable {
+    void swim();
+}
 
-        product1.displayInfo();
+interface Flyable {
+    void fly();
+}
 
-        product1.setPrice(-1500000000);
+class Duck extends Animal implements Swimmable, Flyable {
 
-        product1.displayInfo();
+    public Duck(String name) {
+        super(name);
+    }
 
-        product1.setPrice(150000000);
+    @Override
+    public void swim() {
+        System.out.println(name + " đang bơi dưới nước");
+    }
 
-        product1.displayInfo();
+    @Override
+    public void fly() {
+        System.out.println(name + " đang bay trên trời");
+    }
+}
+
+class Fish extends Animal implements Swimmable {
+
+    public Fish(String name) {
+        super(name);
+    }
+
+    @Override
+    public void swim() {
+        System.out.println(name + " đang bơi dưới nước");
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Duck duck = new Duck("Vịt Donald");
+        Fish fish = new Fish("Cá Nemo");
+
+        System.out.println("=== Duck ===");
+        duck.swim();
+        duck.fly();
+
+        System.out.println("\n=== Fish ===");
+        fish.swim();
+
+        // fish.fly(); //  Lỗi vì Fish không implement Flyable
     }
 }
