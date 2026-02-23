@@ -1,99 +1,129 @@
-class BankAccount {
-    // ===== Thuộc tính (Encapsulation) =====
-    private String accountNumber;
-    private String accountHolder;
-    private double balance;
+interface Payable {
+    void pay(double amount);
+}
 
-    // ===== Constructor không tham số =====
-    public BankAccount() {
-        this.accountNumber = "UNKNOWN";
-        this.accountHolder = "NO NAME";
-        this.balance = 0;
+abstract class PaymentMethod {
+
+    protected String accountName;
+    protected String paymentId;
+
+    public PaymentMethod(String accountName, String paymentId) {
+        this.accountName = accountName;
+        this.paymentId = paymentId;
     }
 
-    // ===== Constructor có tham số (dùng this) =====
-    public BankAccount(String accountNumber, String accountHolder, double balance) {
-        this.accountNumber = accountNumber;
-        this.accountHolder = accountHolder;
-        setBalance(balance); // kiểm tra qua setter
+    public abstract void validate();
+}
+
+
+class CreditCard extends PaymentMethod implements Payable {
+
+    private String cardNumber;
+    private String cvv;
+    private double creditLimit;
+
+    public CreditCard(String accountName, String paymentId,
+                      String cardNumber, String cvv, double creditLimit) {
+        super(accountName, paymentId);
+        this.cardNumber = cardNumber;
+        this.cvv = cvv;
+        this.creditLimit = creditLimit;
     }
 
-    // ===== Getter =====
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public String getAccountHolder() {
-        return accountHolder;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    // ===== Setter (kiểm tra dữ liệu hợp lệ) =====
-    public void setBalance(double balance) {
-        if (balance >= 0) {
-            this.balance = balance;
+    @Override
+    public void validate() {
+        if (cardNumber.length() == 16 && cardNumber.matches("\\d{16}")) {
+            System.out.println("Thẻ hợp lệ.");
         } else {
-            System.out.println("So du khong duoc am. Gan ve 0.");
-            this.balance = 0;
+            System.out.println("Thẻ không hợp lệ (phải đủ 16 chữ số).");
         }
     }
 
-    // ===== Nghiệp vụ: Nạp tiền =====
-    public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-            System.out.println("Nap tien thanh cong: " + amount);
+    @Override
+    public void pay(double amount) {
+        if (amount <= creditLimit) {
+            creditLimit -= amount;
+            System.out.println("Thanh toán thành công bằng Credit Card: " + amount);
+            System.out.println("Hạn mức còn lại: " + creditLimit);
         } else {
-            System.out.println("So tien nap phai > 0");
+            System.out.println("Không đủ hạn mức tín dụng.");
         }
-    }
-
-    // ===== Nghiệp vụ: Rút tiền =====
-    public void withdraw(double amount) {
-        if (amount <= 0) {
-            System.out.println("So tien rut phai > 0");
-        } else if (amount > balance) {
-            System.out.println("So du khong du de rut");
-        } else {
-            balance -= amount;
-            System.out.println("Rut tien thanh cong: " + amount);
-        }
-    }
-
-    // ===== Hiển thị thông tin =====
-    public void displayInfo() {
-        System.out.println("So tai khoan: " + accountNumber);
-        System.out.println("Chu tai khoan: " + accountHolder);
-        System.out.println("So du: " + balance);
-        System.out.println("---------------------------");
     }
 }
 
-public class Btth {
+
+class EWallet extends PaymentMethod implements Payable {
+
+    private String phoneNumber;
+    private double balance;
+
+    public EWallet(String accountName, String paymentId,
+                   String phoneNumber, double balance) {
+        super(accountName, paymentId);
+        this.phoneNumber = phoneNumber;
+        this.balance = balance;
+    }
+
+    @Override
+    public void validate() {
+        if (phoneNumber.matches("\\d{10}")) {
+            System.out.println("Ví hợp lệ.");
+        } else {
+            System.out.println("Số điện thoại không hợp lệ.");
+        }
+    }
+
+    @Override
+    public void pay(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            System.out.println("Thanh toán thành công bằng E-Wallet: " + amount);
+            System.out.println("Số dư còn lại: " + balance);
+        } else {
+            System.out.println("Không đủ số dư trong ví.");
+        }
+    }
+}
+
+
+public class Main {
+
     public static void main(String[] args) {
 
-        // Tạo đối tượng bằng constructor không tham số
-        BankAccount acc1 = new BankAccount();
+        Payable creditCard = new CreditCard(
+                "Nguyễn Văn A",
+                "CC001",
+                "1234567812345678",
+                "123",
+                20000
+        );
 
-        // Tạo đối tượng bằng constructor có tham số
-        BankAccount acc2 = new BankAccount("ACB001", "Ngo Quang Anh", 5000);
+        Payable eWallet = new EWallet(
+                "Trần Văn B",
+                "EW001",
+                "0987654321",
+                10000
+        );
 
-        // Hiển thị ban đầu
-        acc1.displayInfo();
-        acc2.displayInfo();
+        System.out.println("=== CREDIT CARD ===");
+        ((PaymentMethod) creditCard).validate();
+        creditCard.pay(5000);
 
-        // Thao tác với acc1
-        acc1.deposit(2000);
-        acc1.withdraw(500);
-        acc1.displayInfo();
+        System.out.println("\n=== E-WALLET ===");
+        ((PaymentMethod) eWallet).validate();
+        eWallet.pay(3000);
 
-        // Thao tác với acc2
-        acc2.deposit(3000);
-        acc2.withdraw(10000); // rút quá số dư
-        acc2.withdraw(2000);
-        acc2.displayInfo();
+        System.out.println("\n=== REWARD POINTS (Anonymous Class) ===");
+
+        Payable rewardPoints = new Payable() {
+            @Override
+            public void pay(double amount) {
+                int points = (int) (amount / 1000);
+                System.out.println("Thanh toán bằng điểm thưởng.");
+                System.out.println("Sử dụng " + points + " điểm cho số tiền " + amount);
+            }
+        };
+
+        rewardPoints.pay(5000);
     }
 }
